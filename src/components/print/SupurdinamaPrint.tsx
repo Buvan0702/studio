@@ -1,51 +1,62 @@
-import { SupurdinamaFormData } from "@/lib/types";
+"use client";
 
-const Field = ({ label, value }: { label: string; value:string | undefined }) => (
-  <div className="mb-4">
-    <p className="text-sm font-semibold text-gray-600">{label}</p>
-    <p className="border-b border-black pb-1 mt-1">{value || ""}</p>
-  </div>
-);
+import { SupurdinamaFormData } from "@/lib/types";
 
 export default function SupurdinamaPrint({ data }: { data: SupurdinamaFormData }) {
   return (
-    <div className="font-sans text-black p-4">
-      <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold">CUSTODY RECEIPT (Supurdinama)</h1>
-        <p className="text-sm">This document acknowledges receipt of a person into custody.</p>
+    <>
+    <style jsx global>{`
+        .line {
+          display: inline-block;
+          border-bottom: 1px solid #000;
+          min-width: 120px;
+          margin: 0 5px;
+          padding: 0 4px;
+        }
+        .long-line {
+          display: inline-block;
+          border-bottom: 1px solid #000;
+          min-width: 300px;
+          margin: 0 5px;
+          padding: 0 4px;
+        }
+    `}</style>
+    <div style={{ width: '800px', margin: '40px auto', fontFamily: 'Arial, sans-serif', fontSize: '14px' }}>
+      <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px', marginBottom: '20px' }}>
+        (Part Three)<br/>Forest Department<br/>Custody Receipt
       </div>
 
-      <div className="border-2 border-black p-6">
-        <div className="grid grid-cols-3 gap-8 mb-6">
-          <Field label="Receipt No." value={data.receiptNo} />
-          <Field label="Date of Custody" value={data.custodyDate ? new Date(data.custodyDate).toLocaleDateString('en-GB') : ''} />
-          <Field label="Time of Custody" value={data.custodyTime} />
+      <div style={{ margin: '20px 0' }}>
+        I, <span className="line">{data.custodianName}</span> caste <span className="line">{data.custodianCaste}</span> resident of <span className="line">{data.custodianResident}</span> Tehsil <span className="line">{data.custodianTehsil}</span> District <span className="line">{data.custodianDistrict}</span> declare:
+        <div style={{ margin: '8px 0' }}>
+          That the forest officer <span className="line">{data.officerName}</span> has handed me the following listed items today, dated <span className="line">{data.handoverDate ? new Date(data.handoverDate).toLocaleDateString() : ''}</span> month <span className="line">{data.handoverMonth}</span> year 20<span className="line">{data.handoverYear}</span>.
         </div>
-
-        <Field label="Name of Person Taken into Custody (Suspect)" value={data.suspectName} />
-        <Field label="Name of Arresting Officer" value={data.officerName} />
-        <Field label="Reason for Custody" value={data.reasonForCustody} />
-
-        <div>
-          <p className="text-sm font-semibold text-gray-600">Items Seized from Person:</p>
-          <div className="border border-gray-400 p-2 mt-1 min-h-[150px] whitespace-pre-wrap">
-            {data.itemsSeized}
-          </div>
+        <div style={{ margin: '8px 0' }}>
+          As per Section 52 of Indian Forest Act, 1927, I acknowledge receiving the items.
         </div>
-
-        <div className="mt-16">
-          <p className="text-sm">I hereby acknowledge that I have been taken into custody and that the items listed above were seized from my person.</p>
+        <div style={{ margin: '8px 0' }}>
+          I assure that I will take proper care of them and produce them whenever demanded by the forest department or present in court.
         </div>
+      </div>
 
-        <div className="grid grid-cols-2 gap-16 mt-24">
-          <div className="border-t border-black pt-2">
-            <p className="text-center font-semibold">Signature of Suspect</p>
-          </div>
-          <div className="border-t border-black pt-2">
-            <p className="text-center font-semibold">Signature of Officer</p>
-          </div>
+      <div style={{ margin: '20px 0' }}>
+        <strong>Detailed List of Items:</strong>
+        <div style={{ borderBottom: '1px solid #000', minHeight: '80px', padding: '4px' }}>
+          {data.itemsList}
         </div>
+      </div>
+
+      <div style={{ margin: '20px 0' }}>
+        <div style={{ margin: '8px 0' }}>Date: <span className="line">{data.declarationDate ? new Date(data.declarationDate).toLocaleDateString() : ''}</span> Month: <span className="line">{data.declarationMonth}</span> Year: 20<span className="line">{data.declarationYear}</span></div>
+        <div style={{ margin: '8px 0' }}>Name of Witness on whose behalf custody was given:</div>
+        <div style={{ margin: '8px 0' }}>(1) <span className="line">{data.witness1}</span></div>
+        <div style={{ margin: '8px 0' }}>(2) <span className="line">{data.witness2}</span></div>
+      </div>
+
+      <div style={{ marginTop: '40px' }}>
+        Signature or Thumb Impression of Custodian: <span className="long-line">{data.custodianSignature}</span>
       </div>
     </div>
+    </>
   );
 }

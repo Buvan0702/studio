@@ -12,24 +12,27 @@ import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { PorFormData } from "@/lib/types";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
+  bookNo: z.string().min(1, "Book No. is required."),
+  pageNo: z.string().min(1, "Page No. is required."),
   reportNo: z.string().min(1, "Report number is required."),
   date: z.string().min(1, "Date is required."),
   month: z.string().min(1, "Month is required."),
   year: z.string().min(1, "Year is required."),
-  district: z.string().min(1, "District is required."),
-  policeStation: z.string().min(1, "Police station is required."),
+  accusedInfo: z.string().min(1, "Accused info is required."),
   offenseType: z.string().min(1, "Type of offense is required."),
-  offenseDate: z.string().min(1, "Date of offense is required."),
-  offenseTime: z.string().min(1, "Time of offense is required."),
-  complainantName: z.string().min(1, "Complainant name is required."),
-  complainantAddress: z.string().min(1, "Complainant address is required."),
-  accusedName: z.string().min(1, "Accused name is required."),
-  accusedAddress: z.string().min(1, "Accused address is required."),
-  narrative: z.string().min(1, "Narrative is required."),
+  placeOfOffense: z.string().min(1, "Place of offense is required."),
+  dateOfOffense: z.string().min(1, "Date of offense is required."),
+  seizedGoods: z.string().min(1, "Seized goods are required."),
+  witnesses: z.string().min(1, "Witnesses are required."),
+  sentToAssistant: z.string(),
+  sentToOfficer: z.string(),
+  place: z.string().min(1, "Place is required."),
+  signatureDate: z.string().min(1, "Signature date is required."),
+  area: z.string().min(1, "Area is required."),
+  forwardingOfficer: z.string(),
 });
 
 export default function PorForm({ caseId }: { caseId: string }) {
@@ -97,57 +100,67 @@ export default function PorForm({ caseId }: { caseId: string }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <FormField control={form.control} name="reportNo" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Report No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField control={form.control} name="bookNo" render={({ field }) => (
+            <FormItem><FormLabel>Book No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
-          <FormField control={form.control} name="date" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Date</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="month" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Month</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="year" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Year (YY)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          <FormField control={form.control} name="pageNo" render={({ field }) => (
+            <FormItem><FormLabel>Page No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField control={form.control} name="district" render={({ field }) => (
-            <FormItem><FormLabel>District</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <FormField control={form.control} name="reportNo" render={({ field }) => (
+            <FormItem><FormLabel>Report No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
-          <FormField control={form.control} name="policeStation" render={({ field }) => (
-            <FormItem><FormLabel>Police Station</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          <FormField control={form.control} name="date" render={({ field }) => (
+            <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="month" render={({ field }) => (
+            <FormItem><FormLabel>Month</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="year" render={({ field }) => (
+            <FormItem><FormLabel>Year (YYYY)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+        </div>
+        <FormField control={form.control} name="accusedInfo" render={({ field }) => (
+            <FormItem><FormLabel>Name of accused, father's name, caste and address</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="offenseType" render={({ field }) => (
+            <FormItem><FormLabel>Type of offense and relevant section</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="placeOfOffense" render={({ field }) => (
+            <FormItem><FormLabel>Place of offense</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="dateOfOffense" render={({ field }) => (
+            <FormItem><FormLabel>Date of offense</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="seizedGoods" render={({ field }) => (
+            <FormItem><FormLabel>Seized goods and action taken</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        <FormField control={form.control} name="witnesses" render={({ field }) => (
+            <FormItem><FormLabel>Names of witnesses</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField control={form.control} name="sentToAssistant" render={({ field }) => (
+            <FormItem><FormLabel>Second part sent to Assistant (Range)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+          <FormField control={form.control} name="sentToOfficer" render={({ field }) => (
+            <FormItem><FormLabel>Third part sent to Officer (Division)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <FormField control={form.control} name="offenseType" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Type of Offense</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          <FormField control={form.control} name="place" render={({ field }) => (
+            <FormItem><FormLabel>Place</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
-          <FormField control={form.control} name="offenseDate" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Date of Offense</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+          <FormField control={form.control} name="signatureDate" render={({ field }) => (
+            <FormItem><FormLabel>Signature Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
           )} />
-          <FormField control={form.control} name="offenseTime" render={({ field }) => (
-            <FormItem className="sm:col-span-1"><FormLabel>Time of Offense</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField control={form.control} name="complainantName" render={({ field }) => (
-            <FormItem><FormLabel>Complainant Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="complainantAddress" render={({ field }) => (
-            <FormItem><FormLabel>Complainant Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          <FormField control={form.control} name="area" render={({ field }) => (
+            <FormItem><FormLabel>Area</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField control={form.control} name="accusedName" render={({ field }) => (
-            <FormItem><FormLabel>Accused Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="accusedAddress" render={({ field }) => (
-            <FormItem><FormLabel>Accused Address</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-        <FormField control={form.control} name="narrative" render={({ field }) => (
-            <FormItem><FormLabel>Narrative of Offense</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+        <FormField control={form.control} name="forwardingOfficer" render={({ field }) => (
+            <FormItem><FormLabel>Forwarding Officer (For Column 3)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>

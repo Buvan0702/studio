@@ -15,11 +15,33 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  caseNo: z.string().min(1, "Case number is required."),
-  resignationDate: z.string().min(1, "Date of resignation is required."),
-  reason: z.string().min(1, "Reason for resignation is required."),
-  officerSignature: z.string().min(1, "Officer's signature is required."),
-  witnessSignature: z.string().min(1, "Witness's signature is required."),
+  declarant1Name: z.string(),
+  declarant1Caste: z.string(),
+  declarant1Resident: z.string(),
+  declarant2Name: z.string(),
+  declarant2Caste: z.string(),
+  declarant2Resident: z.string(),
+  declarant3Name: z.string(),
+  declarant3Caste: z.string(),
+  declarant3Resident: z.string(),
+  declarant4Name: z.string(),
+  declarant4Caste: z.string(),
+  declarant4Resident: z.string(),
+  declarant5Name: z.string(),
+  declarant5Caste: z.string(),
+  declarant5Resident: z.string(),
+  suspectInfo: z.string().min(1, "Suspect info is required."),
+  declarationDate: z.string().min(1, "Declaration date is required."),
+  declarationYear: z.string().min(1, "Declaration year is required."),
+  declarantSignature: z.string().min(1, "Declarant signature is required."),
+  witness1: z.string(),
+  witness2: z.string(),
+  witness3: z.string(),
+  witness4: z.string(),
+  witness5: z.string(),
+  verificationDate: z.string().min(1, "Verification date is required."),
+  verificationYear: z.string().min(1, "Verification year is required."),
+  verifyingOfficerSignature: z.string().min(1, "Verifying officer signature is required."),
 });
 
 export default function RajinamaForm({ caseId }: { caseId: string }) {
@@ -30,9 +52,7 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-        caseNo: caseId.substring(0, 8)
-    },
+    defaultValues: {},
   });
 
   useEffect(() => {
@@ -89,25 +109,59 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField control={form.control} name="caseNo" render={({ field }) => (
-            <FormItem><FormLabel>Case No.</FormLabel><FormControl><Input {...field} disabled /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="resignationDate" render={({ field }) => (
-            <FormItem><FormLabel>Date of Resignation</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-        </div>
-        <FormField control={form.control} name="reason" render={({ field }) => (
-            <FormItem><FormLabel>Reason for Resignation</FormLabel><FormControl><Textarea rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i}>
+            <h3 className="text-lg font-semibold text-primary mb-2">Declarant {i}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <FormField control={form.control} name={`declarant${i}Name` as any} render={({ field }) => (
+                <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name={`declarant${i}Caste` as any} render={({ field }) => (
+                <FormItem><FormLabel>Caste</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name={`declarant${i}Resident` as any} render={({ field }) => (
+                <FormItem><FormLabel>Resident of</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
+          </div>
+        ))}
+        
+        <FormField control={form.control} name="suspectInfo" render={({ field }) => (
+            <FormItem><FormLabel>Regarding forest-related suspect</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />
+        
+        <h3 className="text-lg font-semibold text-primary">Declaration</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField control={form.control} name="officerSignature" render={({ field }) => (
-                <FormItem><FormLabel>Officer Signature</FormLabel><FormControl><Input placeholder="Type name to sign" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField control={form.control} name="declarationDate" render={({ field }) => (
+                <FormItem><FormLabel>Declaration Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
-            <FormField control={form.control} name="witnessSignature" render={({ field }) => (
-                <FormItem><FormLabel>Witness Signature</FormLabel><FormControl><Input placeholder="Type name to sign" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormField control={form.control} name="declarationYear" render={({ field }) => (
+                <FormItem><FormLabel>Declaration Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
             )} />
         </div>
+        <FormField control={form.control} name="declarantSignature" render={({ field }) => (
+            <FormItem><FormLabel>Signature of Declarant</FormLabel><FormControl><Input placeholder="Type name to sign" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+        
+        <h3 className="text-lg font-semibold text-primary">Witnesses</h3>
+        {[1, 2, 3, 4, 5].map(i => (
+          <FormField key={i} control={form.control} name={`witness${i}` as any} render={({ field }) => (
+            <FormItem><FormLabel>Witness {i}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+          )} />
+        ))}
+
+        <h3 className="text-lg font-semibold text-primary">Verification</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField control={form.control} name="verificationDate" render={({ field }) => (
+                <FormItem><FormLabel>Verification Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField control={form.control} name="verificationYear" render={({ field }) => (
+                <FormItem><FormLabel>Verification Year</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+        </div>
+        <FormField control={form.control} name="verifyingOfficerSignature" render={({ field }) => (
+            <FormItem><FormLabel>Verifying Officer Signature</FormLabel><FormControl><Input placeholder="Type name to sign" {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
         
         <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
