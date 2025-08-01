@@ -3,7 +3,7 @@
 import { PorFormData } from "@/lib/types";
 
 const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string, col3?: boolean }) => (
-    <div className="column" style={{
+    <div style={{
       position: 'absolute',
       top: 0,
       width: '33.33%',
