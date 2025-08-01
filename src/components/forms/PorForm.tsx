@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -43,7 +43,26 @@ export default function PorForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      bookNo: '',
+      pageNo: '',
+      reportNo: '',
+      date: '',
+      month: '',
+      year: '',
+      accusedInfo: '',
+      offenseType: '',
+      placeOfOffense: '',
+      dateOfOffense: '',
+      seizedGoods: '',
+      witnesses: '',
+      sentToAssistant: '',
+      sentToOfficer: '',
+      place: '',
+      signatureDate: '',
+      area: '',
+      forwardingOfficer: '',
+    },
   });
 
   useEffect(() => {
@@ -76,13 +95,9 @@ export default function PorForm({ caseId }: { caseId: string }) {
       }, { merge: true });
 
       const caseRef = doc(db, "cases", caseId);
-      const caseSnap = await getDoc(caseRef);
-      const submittedForms = caseSnap.data()?.submittedForms || [];
-      if (!submittedForms.includes("POR")) {
-        await updateDoc(caseRef, {
-          submittedForms: [...submittedForms, "POR"],
-        });
-      }
+      await updateDoc(caseRef, {
+          submittedForms: arrayUnion("POR"),
+      });
 
       toast({ title: "Success", description: "POR form saved successfully." });
       router.push(`/cases/${caseId}`);
@@ -108,7 +123,7 @@ export default function PorForm({ caseId }: { caseId: string }) {
             <FormItem><FormLabel>Page No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <FormField control={form.control} name="reportNo" render={({ field }) => (
             <FormItem><FormLabel>Report No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
@@ -148,7 +163,7 @@ export default function PorForm({ caseId }: { caseId: string }) {
             <FormItem><FormLabel>Third part sent to Officer (Division)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <FormField control={form.control} name="place" render={({ field }) => (
             <FormItem><FormLabel>Place</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />

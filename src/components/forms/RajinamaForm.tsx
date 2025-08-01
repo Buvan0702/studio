@@ -5,11 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -52,7 +51,35 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      declarant1Name: '',
+      declarant1Caste: '',
+      declarant1Resident: '',
+      declarant2Name: '',
+      declarant2Caste: '',
+      declarant2Resident: '',
+      declarant3Name: '',
+      declarant3Caste: '',
+      declarant3Resident: '',
+      declarant4Name: '',
+      declarant4Caste: '',
+      declarant4Resident: '',
+      declarant5Name: '',
+      declarant5Caste: '',
+      declarant5Resident: '',
+      suspectInfo: '',
+      declarationDate: '',
+      declarationYear: '',
+      declarantSignature: '',
+      witness1: '',
+      witness2: '',
+      witness3: '',
+      witness4: '',
+      witness5: '',
+      verificationDate: '',
+      verificationYear: '',
+      verifyingOfficerSignature: '',
+    },
   });
 
   useEffect(() => {
@@ -85,13 +112,9 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
       }, { merge: true });
 
       const caseRef = doc(db, "cases", caseId);
-      const caseSnap = await getDoc(caseRef);
-      const submittedForms = caseSnap.data()?.submittedForms || [];
-      if (!submittedForms.includes("Rajinama")) {
-        await updateDoc(caseRef, {
-          submittedForms: [...submittedForms, "Rajinama"],
-        });
-      }
+      await updateDoc(caseRef, {
+          submittedForms: arrayUnion("Rajinama"),
+      });
 
       toast({ title: "Success", description: "Rajinama form saved successfully." });
       router.push(`/cases/${caseId}`);
@@ -144,11 +167,13 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
         )} />
         
         <h3 className="text-lg font-semibold text-primary">Witnesses</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[1, 2, 3, 4, 5].map(i => (
           <FormField key={i} control={form.control} name={`witness${i}` as any} render={({ field }) => (
             <FormItem><FormLabel>Witness {i}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         ))}
+        </div>
 
         <h3 className="text-lg font-semibold text-primary">Verification</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

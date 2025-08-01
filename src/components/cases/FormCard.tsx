@@ -58,7 +58,7 @@ export default function FormCard({
       <CardFooter>
         {status === 'Completed' ? (
           <div className="w-full flex flex-col sm:flex-row gap-2">
-            <Button asChild variant="outline" className="flex-1">
+            <Button asChild variant="outline" className="flex-1" disabled={!isAvailable}>
               <Link href={`/cases/${caseId}/forms/${formType}`}>Edit</Link>
             </Button>
             <Button asChild className="flex-1">

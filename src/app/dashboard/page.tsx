@@ -8,9 +8,37 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Case } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, FileText, ChevronRight } from "lucide-react";
+import { PlusCircle, FileText, ChevronRight, Archive } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const CaseCard = ({ caseItem }: { caseItem: Case }) => {
+  const router = useRouter();
+  return (
+    <Card 
+      key={caseItem.id} 
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => router.push(`/cases/${caseItem.id}`)}
+    >
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="bg-accent/20 p-3 rounded-lg">
+            <FileText className="h-6 w-6 text-accent" />
+          </div>
+          <div>
+            <CardTitle className="text-lg text-primary">Case #{caseItem.id.substring(0, 8)}</CardTitle>
+            <CardDescription>
+              Created on: {caseItem.createdAt ? new Date(caseItem.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
+            </CardDescription>
+          </div>
+        </div>
+        <ChevronRight className="h-6 w-6 text-muted-foreground" />
+      </CardHeader>
+    </Card>
+  );
+};
+
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -22,6 +50,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!authLoading && user) {
       const fetchCases = async () => {
+        setIsLoading(true);
         try {
           const casesRef = collection(db, "cases");
           const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
@@ -89,6 +118,9 @@ export default function Dashboard() {
     );
   }
 
+  const activeCases = cases.filter(c => c.status === 'active');
+  const closedCases = cases.filter(c => c.status === 'closed');
+
   return (
     <>
       <Header />
@@ -104,37 +136,37 @@ export default function Dashboard() {
           </Button>
         </div>
         
-        <div className="space-y-4">
-          {cases.length > 0 ? (
-            cases.map((caseItem) => (
-              <Card 
-                key={caseItem.id} 
-                className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => router.push(`/cases/${caseItem.id}`)}
-              >
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-accent/20 p-3 rounded-lg">
-                      <FileText className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-primary">Case #{caseItem.id.substring(0, 8)}</CardTitle>
-                      <CardDescription>
-                        Created on: {caseItem.createdAt ? new Date(caseItem.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <ChevronRight className="h-6 w-6 text-muted-foreground" />
-                </CardHeader>
-              </Card>
-            ))
-          ) : (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg">
-              <h3 className="text-xl font-medium text-primary">No cases found</h3>
-              <p className="text-muted-foreground mt-2">Start a new case to begin.</p>
+        <Tabs defaultValue="active" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="active">Ongoing ({activeCases.length})</TabsTrigger>
+            <TabsTrigger value="closed">Closed ({closedCases.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="active">
+             <div className="space-y-4 mt-4">
+              {activeCases.length > 0 ? (
+                activeCases.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />)
+              ) : (
+                <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                  <h3 className="text-xl font-medium text-primary">No active cases</h3>
+                  <p className="text-muted-foreground mt-2">Start a new case to begin.</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+          <TabsContent value="closed">
+            <div className="space-y-4 mt-4">
+              {closedCases.length > 0 ? (
+                closedCases.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />)
+              ) : (
+                <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                  <Archive className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <h3 className="text-xl font-medium text-primary mt-4">No closed cases</h3>
+                  <p className="text-muted-foreground mt-2">Closed cases will appear here.</p>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );

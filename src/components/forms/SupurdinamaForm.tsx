@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -41,7 +41,24 @@ export default function SupurdinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      custodianName: '',
+      custodianCaste: '',
+      custodianResident: '',
+      custodianTehsil: '',
+      custodianDistrict: '',
+      officerName: '',
+      handoverDate: '',
+      handoverMonth: '',
+      handoverYear: '',
+      itemsList: '',
+      declarationDate: '',
+      declarationMonth: '',
+      declarationYear: '',
+      witness1: '',
+      witness2: '',
+      custodianSignature: '',
+    },
   });
 
   useEffect(() => {
@@ -74,13 +91,9 @@ export default function SupurdinamaForm({ caseId }: { caseId: string }) {
       }, { merge: true });
 
       const caseRef = doc(db, "cases", caseId);
-      const caseSnap = await getDoc(caseRef);
-      const submittedForms = caseSnap.data()?.submittedForms || [];
-      if (!submittedForms.includes("Supurdinama")) {
-        await updateDoc(caseRef, {
-          submittedForms: [...submittedForms, "Supurdinama"],
-        });
-      }
+      await updateDoc(caseRef, {
+        submittedForms: arrayUnion("Supurdinama"),
+      });
 
       toast({ title: "Success", description: "Supurdinama form saved successfully." });
       router.push(`/cases/${caseId}`);

@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -46,7 +46,29 @@ export default function JabtinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      dateTime: '',
+      placeOfOffense: '',
+      officerName: '',
+      accusedName: '',
+      confiscatedProperty: '',
+      accusedCaste: '',
+      witnessName: '',
+      custodianName: '',
+      speciesDescription: '',
+      species: '',
+      quantity: '',
+      length: '',
+      girth: '',
+      rate: '',
+      totalValue: '',
+      accusedSignature: '',
+      officerSignature: '',
+      witness1: '',
+      witness2: '',
+      witness3: '',
+      witness4: '',
+    },
   });
 
   useEffect(() => {
@@ -79,13 +101,9 @@ export default function JabtinamaForm({ caseId }: { caseId: string }) {
       }, { merge: true });
 
       const caseRef = doc(db, "cases", caseId);
-      const caseSnap = await getDoc(caseRef);
-      const submittedForms = caseSnap.data()?.submittedForms || [];
-      if (!submittedForms.includes("Jabtinama")) {
-        await updateDoc(caseRef, {
-          submittedForms: [...submittedForms, "Jabtinama"],
-        });
-      }
+      await updateDoc(caseRef, {
+        submittedForms: arrayUnion("Jabtinama"),
+      });
 
       toast({ title: "Success", description: "Jabtinama form saved successfully." });
       router.push(`/cases/${caseId}`);
@@ -129,10 +147,10 @@ export default function JabtinamaForm({ caseId }: { caseId: string }) {
           <FormField control={form.control} name="witnessName" render={({ field }) => (
             <FormItem><FormLabel>Witness Name & Father’s Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
+          </div>
           <FormField control={form.control} name="custodianName" render={({ field }) => (
             <FormItem><FormLabel>Name of Custodian & Father’s Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
-        </div>
         
         <h3 className="text-lg font-semibold text-primary">Species Details</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
