@@ -7,9 +7,8 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/use-auth";
 import type { Case } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
 import { PlusCircle, FileText, ChevronRight, Archive } from "lucide-react";
-import { Header } from "@/components/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -112,7 +111,6 @@ export default function Dashboard() {
   if (authLoading || isLoading) {
     return (
       <>
-        <Header />
         <DashboardSkeleton />
       </>
     );
@@ -123,7 +121,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Header />
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
