@@ -21,6 +21,7 @@ export type Form<T> = {
 
 // Define specific form data types
 export type PorFormData = {
+  officerId: string;
   bookNo: string;
   pageNo: string;
   reportNo: string;

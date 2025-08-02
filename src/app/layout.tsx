@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -11,12 +10,12 @@ export const metadata: Metadata = {
   title: "JusticeForms",
   description: "Digitally manage case forms for police officers.",
   icons: {
-    icon: "/logo.jpeg",
+    icon: "/logo.png",
   },
   openGraph: {
     title: "JusticeForms",
     description: "Digitally manage case forms for police officers.",
-    images: ["/banner.jpeg"],
+    images: ["/banner.png"],
     type: "website",
     url: "https://yourdomain.com",
   },
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "JusticeForms",
     description: "Digitally manage case forms for police officers.",
-    images: ["/banner.jpg"],
+    images: ["/banner.png"],
   },
 };
 

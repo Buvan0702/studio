@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { collection, addDoc, query, where, getDocs, serverTimestamp, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -65,36 +65,32 @@ export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [cases, setCases] = useState<Case[]>([]);
-  const [isLoadingCases, setIsLoadingCases] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreatingCase, setIsCreatingCase] = useState(false);
 
-  useEffect(() => {
-    if (authLoading) {
-      return; 
+  const fetchCases = useCallback(async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const casesRef = collection(db, "cases");
+      const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
+      const querySnapshot = await getDocs(q);
+      const userCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
+      setCases(userCases);
+    } catch (error) {
+      console.error("Error fetching cases:", error);
+    } finally {
+      setIsLoading(false);
     }
-    if (!user) {
-      router.push('/login');
-      return;
-    }
+  }, [user]);
 
-    const fetchCases = async () => {
-      if (!user) return;
-      setIsLoadingCases(true);
-      try {
-        const casesRef = collection(db, "cases");
-        const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        const userCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
-        setCases(userCases);
-      } catch (error) {
-        console.error("Error fetching cases:", error);
-      } finally {
-        setIsLoadingCases(false);
-      }
-    };
-    
-    fetchCases();
-  }, [user, authLoading, router]);
+  useEffect(() => {
+    if (!authLoading && user) {
+      fetchCases();
+    } else if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router, fetchCases]);
 
   const handleNewCase = async () => {
     if (!user) return;
@@ -114,7 +110,7 @@ export default function Dashboard() {
     }
   };
   
-  if (authLoading || (!user && !authLoading)) {
+  if (authLoading || isLoading) {
     return <DashboardSkeleton />;
   }
   
@@ -122,13 +118,6 @@ export default function Dashboard() {
   const closedCases = cases.filter(c => c.status === 'closed');
 
   const renderContent = (caseList: Case[], type: 'active' | 'closed') => {
-    if (isLoadingCases) {
-      return (
-        <div className="flex justify-center items-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
-    }
     if (caseList.length > 0) {
       return caseList.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />);
     }
@@ -150,7 +139,6 @@ export default function Dashboard() {
       );
     }
   }
-
 
   return (
     <>
