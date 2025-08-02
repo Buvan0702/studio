@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "JusticeForms",
     description: "Digitally manage case forms for police officers.",
-    images: ["/banner.jpg"],
+    images: ["/banner.jpeg"],
     type: "website",
     url: "https://yourdomain.com",
   },
