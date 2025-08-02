@@ -29,8 +29,6 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
-
-        {/* Open Graph Meta Tags */}
         <meta property="og:title" content="JusticeForms" />
         <meta
           property="og:description"
@@ -38,9 +36,7 @@ export default function RootLayout({
         />
         <meta property="og:image" content="/banner.jpg" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://yourdomain.com" /> {/* Update to real URL */}
-
-        {/* Twitter Card Meta Tags */}
+        <meta property="og:url" content="https://yourdomain.com" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="JusticeForms" />
         <meta
