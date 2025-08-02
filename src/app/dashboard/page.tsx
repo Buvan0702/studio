@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Case } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
-import { PlusCircle, FileText, ChevronRight, Archive } from "lucide-react";
+import { PlusCircle, FileText, ChevronRight, Archive, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -38,18 +38,39 @@ const CaseCard = ({ caseItem }: { caseItem: Case }) => {
   );
 };
 
+const DashboardSkeleton = () => (
+  <div className="container mx-auto py-8 px-4">
+    <div className="flex justify-between items-center mb-6">
+      <Skeleton className="h-9 w-48" />
+      <Skeleton className="h-10 w-36" />
+    </div>
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <Card key={i}>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-52" />
+            </div>
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </CardHeader>
+        </Card>
+      ))}
+    </div>
+  </div>
+);
+
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [cases, setCases] = useState<Case[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCases, setIsLoadingCases] = useState(true);
   const [isCreatingCase, setIsCreatingCase] = useState(false);
 
   useEffect(() => {
     if (authLoading) {
-      setIsLoading(true);
-      return;
+      return; 
     }
     if (!user) {
       router.push('/login');
@@ -57,7 +78,7 @@ export default function Dashboard() {
     }
 
     const fetchCases = async () => {
-      setIsLoading(true);
+      setIsLoadingCases(true);
       try {
         const casesRef = collection(db, "cases");
         const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
@@ -67,7 +88,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error("Error fetching cases:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingCases(false);
       }
     };
     
@@ -92,38 +113,43 @@ export default function Dashboard() {
     }
   };
   
-  const DashboardSkeleton = () => (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <Skeleton className="h-9 w-48" />
-        <Skeleton className="h-10 w-36" />
-      </div>
-      <div className="space-y-4">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-40" />
-                <Skeleton className="h-4 w-52" />
-              </div>
-              <Skeleton className="h-8 w-8 rounded-full" />
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-
-  if (authLoading || isLoading) {
-    return (
-      <>
-        <DashboardSkeleton />
-      </>
-    );
+  if (authLoading) {
+    return <DashboardSkeleton />;
   }
-
+  
   const activeCases = cases.filter(c => c.status === 'active');
   const closedCases = cases.filter(c => c.status === 'closed');
+
+  const renderContent = (caseList: Case[], type: 'active' | 'closed') => {
+    if (isLoadingCases) {
+      return (
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+    if (caseList.length > 0) {
+      return caseList.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />);
+    }
+
+    if (type === 'active') {
+      return (
+        <div className="text-center py-16 border-2 border-dashed rounded-lg">
+          <h3 className="text-xl font-medium text-primary">No active cases</h3>
+          <p className="text-muted-foreground mt-2">Start a new case to begin.</p>
+        </div>
+      );
+    } else {
+       return (
+        <div className="text-center py-16 border-2 border-dashed rounded-lg">
+          <Archive className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="text-xl font-medium text-primary mt-4">No closed cases</h3>
+          <p className="text-muted-foreground mt-2">Closed cases will appear here.</p>
+        </div>
+      );
+    }
+  }
+
 
   return (
     <>
@@ -146,27 +172,12 @@ export default function Dashboard() {
           </TabsList>
           <TabsContent value="active">
              <div className="space-y-4 mt-4">
-              {activeCases.length > 0 ? (
-                activeCases.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />)
-              ) : (
-                <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                  <h3 className="text-xl font-medium text-primary">No active cases</h3>
-                  <p className="text-muted-foreground mt-2">Start a new case to begin.</p>
-                </div>
-              )}
+              {renderContent(activeCases, 'active')}
             </div>
           </TabsContent>
           <TabsContent value="closed">
             <div className="space-y-4 mt-4">
-              {closedCases.length > 0 ? (
-                closedCases.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />)
-              ) : (
-                <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                  <Archive className="mx-auto h-12 w-12 text-muted-foreground" />
-                  <h3 className="text-xl font-medium text-primary mt-4">No closed cases</h3>
-                  <p className="text-muted-foreground mt-2">Closed cases will appear here.</p>
-                </div>
-              )}
+              {renderContent(closedCases, 'closed')}
             </div>
           </TabsContent>
         </Tabs>
