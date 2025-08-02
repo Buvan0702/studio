@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -45,7 +46,7 @@ export default function RootLayout({
         />
         <meta name="twitter:image" content="/banner.jpg" />
       </head>
-      <body className={`${inter.variable} font-body antialiased`}>
+      <body className={`${inter.variable} font-body antialiased`} suppressHydrationWarning>
         <AuthProvider>
           {children}
           <Toaster />
