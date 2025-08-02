@@ -10,6 +10,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: "JusticeForms",
   description: "Digitally manage case forms for police officers.",
+  icons: {
+    icon: "/logo.png",
+  },
   openGraph: {
     title: "JusticeForms",
     description: "Digitally manage case forms for police officers.",
