@@ -78,6 +78,7 @@ export default function Dashboard() {
     }
 
     const fetchCases = async () => {
+      if (!user) return;
       setIsLoadingCases(true);
       try {
         const casesRef = collection(db, "cases");
@@ -113,7 +114,7 @@ export default function Dashboard() {
     }
   };
   
-  if (authLoading) {
+  if (authLoading || (!user && !authLoading)) {
     return <DashboardSkeleton />;
   }
   
