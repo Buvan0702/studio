@@ -10,6 +10,19 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: "JusticeForms",
   description: "Digitally manage case forms for police officers.",
+  openGraph: {
+    title: "JusticeForms",
+    description: "Digitally manage case forms for police officers.",
+    images: ["/banner.jpg"],
+    type: "website",
+    url: "https://yourdomain.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JusticeForms",
+    description: "Digitally manage case forms for police officers.",
+    images: ["/banner.jpg"],
+  },
 };
 
 export default function RootLayout({
@@ -30,23 +43,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        <meta property="og:title" content="JusticeForms" />
-        <meta
-          property="og:description"
-          content="Digitally manage case forms for police officers."
-        />
-        <meta property="og:image" content="/banner.jpg" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://yourdomain.com" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="JusticeForms" />
-        <meta
-          name="twitter:description"
-          content="Digitally manage case forms for police officers."
-        />
-        <meta name="twitter:image" content="/banner.jpg" />
       </head>
-      <body className={`${inter.variable} font-body antialiased`} suppressHydrationWarning>
+      <body
+        className={`${inter.variable} font-body antialiased`}
+        suppressHydrationWarning
+      >
         <AuthProvider>
           {children}
           <Toaster />
