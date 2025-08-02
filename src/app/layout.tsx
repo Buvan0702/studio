@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "JusticeForms",
   description: "Digitally manage case forms for police officers.",
   icons: {
-    icon: "/logo.png",
+    icon: "/logo.jpeg",
   },
   openGraph: {
     title: "JusticeForms",
