@@ -47,25 +47,31 @@ export default function Dashboard() {
   const [isCreatingCase, setIsCreatingCase] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) {
-      const fetchCases = async () => {
-        setIsLoading(true);
-        try {
-          const casesRef = collection(db, "cases");
-          const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
-          const querySnapshot = await getDocs(q);
-          const userCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
-          setCases(userCases);
-        } catch (error) {
-          console.error("Error fetching cases:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-      fetchCases();
-    } else if (!authLoading && !user) {
-      router.push('/login');
+    if (authLoading) {
+      setIsLoading(true);
+      return;
     }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchCases = async () => {
+      setIsLoading(true);
+      try {
+        const casesRef = collection(db, "cases");
+        const q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        const userCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
+        setCases(userCases);
+      } catch (error) {
+        console.error("Error fetching cases:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCases();
   }, [user, authLoading, router]);
 
   const handleNewCase = async () => {
