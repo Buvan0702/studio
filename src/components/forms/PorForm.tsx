@@ -28,7 +28,6 @@ const formSchema = z.object({
   sentToAssistant: z.string(),
   sentToOfficer: z.string(),
   place: z.string().min(1, "Place is required."),
-  signatureDate: z.string().min(1, "Signature date is required."),
   area: z.string().min(1, "Area is required."),
   forwardingOfficer: z.string(),
 });
@@ -55,7 +54,6 @@ export default function PorForm({ caseId }: { caseId: string }) {
       sentToAssistant: '',
       sentToOfficer: '',
       place: '',
-      signatureDate: '',
       area: '',
       forwardingOfficer: '',
     },
@@ -67,7 +65,12 @@ export default function PorForm({ caseId }: { caseId: string }) {
         const formRef = doc(db, "cases", caseId, "forms", "POR");
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
-          form.reset(docSnap.data().formData);
+          const data = docSnap.data().formData;
+          // For backward compatibility, if signatureDate exists, use it for date.
+          if (data.signatureDate && !data.date) {
+            data.date = data.signatureDate;
+          }
+          form.reset(data);
         }
       } catch (error) {
         toast({ variant: "destructive", title: "Error", description: "Failed to fetch form data." });
@@ -153,12 +156,9 @@ export default function PorForm({ caseId }: { caseId: string }) {
             <FormItem><FormLabel>Third part sent to Officer (Division)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
           <FormField control={form.control} name="place" render={({ field }) => (
             <FormItem><FormLabel>Place</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="signatureDate" render={({ field }) => (
-            <FormItem><FormLabel>Signature Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
           )} />
           <FormField control={form.control} name="area" render={({ field }) => (
             <FormItem><FormLabel>Area</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

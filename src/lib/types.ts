@@ -40,7 +40,6 @@ export type PorFormData = {
   sentToAssistant: string;
   sentToOfficer: string;
   place: string;
-  signatureDate: string;
   area: string;
   forwardingOfficer: string;
 };

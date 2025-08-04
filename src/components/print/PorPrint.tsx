@@ -4,9 +4,12 @@ import { PorFormData } from "@/lib/types";
 
 const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string, col3?: boolean }) => {
     const reportDate = data.date ? new Date(data.date) : null;
-    const dateStr = reportDate ? reportDate.toLocaleDateString() : '';
-    const monthStr = reportDate ? reportDate.toLocaleString('default', { month: 'long' }) : '';
-    const yearStr = reportDate ? reportDate.getFullYear().toString().substring(2) : '';
+    // Adjust for timezone offset to get correct date parts
+    const dateStr = reportDate ? new Date(reportDate.getTime() + reportDate.getTimezoneOffset() * 60000).toLocaleDateString() : '';
+    const monthStr = reportDate ? new Date(reportDate.getTime() + reportDate.getTimezoneOffset() * 60000).toLocaleString('default', { month: 'long' }) : '';
+    const yearStr = reportDate ? new Date(reportDate.getTime() + reportDate.getTimezoneOffset() * 60000).getFullYear().toString().substring(2) : '';
+    const offenseDate = data.dateOfOffense ? new Date(data.dateOfOffense) : null;
+    const offenseDateStr = offenseDate ? new Date(offenseDate.getTime() + offenseDate.getTimezoneOffset() * 60000).toLocaleDateString() : '';
 
     return (
     <div style={{
@@ -32,7 +35,7 @@ const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string,
       <div style={{ margin: '6px 0' }}>4. Place of offense</div>
       <div className="field-line">{data.placeOfOffense}</div>
       <div style={{ margin: '6px 0' }}>5. Date of offense</div>
-      <div className="field-line">{data.dateOfOffense ? new Date(data.dateOfOffense).toLocaleDateString() : ''}</div>
+      <div className="field-line">{offenseDateStr}</div>
       <div style={{ margin: '6px 0' }}>6. Seized goods and action taken</div>
       <div className="field-line" style={{height: '36px'}}>{data.seizedGoods}</div>
       <div style={{ margin: '6px 0' }}>7. Names of witnesses</div>
@@ -42,7 +45,7 @@ const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string,
         {!col3 && <div>Second part sent to Assistant <span className="underline">{data.sentToAssistant}</span> (Range sent to)</div>}
         <div>Third part sent to Officer <span className="underline">{data.sentToOfficer}</span> (Division sent to)</div>
         <div>Place: <span className="underline">{data.place}</span>   Signature of Forest Guard</div>
-        <div>Date: <span className="underline">{data.signatureDate ? new Date(data.signatureDate).toLocaleDateString() : ''}</span>   Area: <span className="underline">{data.area}</span></div>
+        <div>Date: <span className="underline">{dateStr}</span>   Area: <span className="underline">{data.area}</span></div>
         {col3 && <>
           <div>4.4.3. Sent to Forest Circle</div>
           <div>Forwarding Officer: <span className="underline">{data.forwardingOfficer}</span></div>
