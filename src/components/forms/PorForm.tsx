@@ -87,11 +87,11 @@ export default function PorForm({ caseId }: { caseId: string }) {
 
   const handleGetSuggestion = async () => {
     const offenseDescription = form.getValues("offenseType");
-    if (!offenseDescription) {
+    if (!offenseDescription || offenseDescription.trim().length < 10) {
       toast({
         variant: "destructive",
-        title: "No description provided",
-        description: "Please enter a description of the offense first.",
+        title: "More information needed",
+        description: "Please enter a more detailed description of the offense (at least 10 characters).",
       });
       return;
     }
@@ -138,6 +138,8 @@ export default function PorForm({ caseId }: { caseId: string }) {
     return <div className="flex items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
+  const isSuggestionValid = suggestion && !suggestion.startsWith("No suggestion available");
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -176,9 +178,11 @@ export default function PorForm({ caseId }: { caseId: string }) {
                     </AlertTitle>
                     <AlertDescription className="flex justify-between items-center">
                         <p>{suggestion}</p>
-                        <Button type="button" size="sm" onClick={() => form.setValue("relevantSection", suggestion)}>
-                            Use Suggestion
-                        </Button>
+                        {isSuggestionValid && (
+                            <Button type="button" size="sm" onClick={() => form.setValue("relevantSection", suggestion)}>
+                                Use Suggestion
+                            </Button>
+                        )}
                     </AlertDescription>
                 </Alert>
             )}
