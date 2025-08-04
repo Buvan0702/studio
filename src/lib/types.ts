@@ -8,6 +8,12 @@ export type Case = {
   submittedForms: FormType[];
 };
 
+export type AppUser = {
+  uid: string;
+  email: string | null;
+  role: 'admin' | 'police';
+};
+
 export type FormType = "POR" | "Supurdinama" | "Jabtinama" | "Rajinama";
 
 export type Form<T> = {

@@ -1,14 +1,14 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, Query } from "firebase/firestore";
+import { collection, query, getDocs, orderBy, Query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/hooks/use-auth";
 import type { Case } from "@/lib/types";
-import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
-import { PlusCircle, FileText, ChevronRight, Archive, Loader2 } from "lucide-react";
+import { FileText, ChevronRight, Archive, Loader2, Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -22,13 +22,16 @@ const CaseCard = ({ caseItem }: { caseItem: Case }) => {
     >
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="bg-accent/20 p-3 rounded-lg">
-            <FileText className="h-6 w-6 text-accent" />
+          <div className="bg-blue-100 p-3 rounded-lg">
+            <FileText className="h-6 w-6 text-blue-600" />
           </div>
           <div>
             <CardTitle className="text-lg text-primary">Case #{caseItem.id.substring(0, 8)}</CardTitle>
             <CardDescription>
               Created on: {caseItem.createdAt ? new Date(caseItem.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}
+            </CardDescription>
+             <CardDescription>
+              Officer ID: {caseItem.officerId.substring(0,8)}
             </CardDescription>
           </div>
         </div>
@@ -38,14 +41,13 @@ const CaseCard = ({ caseItem }: { caseItem: Case }) => {
   );
 };
 
-const DashboardSkeleton = () => (
+const AdminDashboardSkeleton = () => (
   <div className="container mx-auto py-8 px-4">
     <div className="flex justify-between items-center mb-6">
       <Skeleton className="h-9 w-48" />
-      <Skeleton className="h-10 w-36" />
     </div>
     <div className="space-y-4">
-      {[...Array(3)].map((_, i) => (
+      {[...Array(5)].map((_, i) => (
         <Card key={i}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-2">
@@ -61,31 +63,27 @@ const DashboardSkeleton = () => (
 );
 
 
-export default function Dashboard() {
+export default function AdminPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [cases, setCases] = useState<Case[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreatingCase, setIsCreatingCase] = useState(false);
 
-  const fetchCases = useCallback(async () => {
-    if (!user) return;
+  const fetchAllCases = useCallback(async () => {
+    if (!user || user.role !== 'admin') {
+        setIsLoading(false);
+        return;
+    };
     setIsLoading(true);
     try {
       const casesRef = collection(db, "cases");
-      let q: Query;
-      
-      if (user.role === 'admin') {
-        q = query(casesRef, orderBy("createdAt", "desc"));
-      } else {
-        q = query(casesRef, where("officerId", "==", user.uid), orderBy("createdAt", "desc"));
-      }
+      const q: Query = query(casesRef, orderBy("createdAt", "desc"));
       
       const querySnapshot = await getDocs(q);
-      const userCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
-      setCases(userCases);
+      const allCases = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Case));
+      setCases(allCases);
     } catch (error) {
-      console.error("Error fetching cases:", error);
+      console.error("Error fetching all cases:", error);
     } finally {
       setIsLoading(false);
     }
@@ -93,89 +91,63 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!authLoading && user) {
-      fetchCases();
+      if (user.role === 'admin') {
+        fetchAllCases();
+      } else {
+        // Redirect non-admin users
+        router.push('/dashboard');
+      }
     } else if (!authLoading && !user) {
       router.push('/login');
     }
-  }, [user, authLoading, router, fetchCases]);
+  }, [user, authLoading, router, fetchAllCases]);
 
-  const handleNewCase = async () => {
-    if (!user) return;
-    setIsCreatingCase(true);
-    try {
-      const newCaseRef = await addDoc(collection(db, "cases"), {
-        officerId: user.uid,
-        createdAt: serverTimestamp(),
-        status: "active",
-        submittedForms: [],
-      });
-      router.push(`/cases/${newCaseRef.id}`);
-    } catch (error) {
-      console.error("Error creating new case:", error);
-    } finally {
-      setIsCreatingCase(false);
-    }
-  };
   
   if (authLoading || isLoading) {
-    return <DashboardSkeleton />;
+    return <AdminDashboardSkeleton />;
   }
   
   const activeCases = cases.filter(c => c.status === 'active');
   const closedCases = cases.filter(c => c.status === 'closed');
 
-  const renderContent = (caseList: Case[], type: 'active' | 'closed') => {
+  const renderContent = (caseList: Case[]) => {
     if (caseList.length > 0) {
       return caseList.map((caseItem) => <CaseCard key={caseItem.id} caseItem={caseItem} />);
     }
-
-    if (type === 'active') {
-      return (
-        <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <h3 className="text-xl font-medium text-primary">No active cases</h3>
-          <p className="text-muted-foreground mt-2">Start a new case to begin.</p>
-        </div>
-      );
-    } else {
-       return (
+    return (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <Archive className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="text-xl font-medium text-primary mt-4">No closed cases</h3>
-          <p className="text-muted-foreground mt-2">Closed cases will appear here.</p>
+          <h3 className="text-xl font-medium text-primary mt-4">No Cases Found</h3>
         </div>
       );
-    }
   }
 
   return (
     <>
       <div className="container mx-auto py-8 px-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-primary">Case Dashboard</h1>
-            <p className="text-muted-foreground">Manage your active and past cases.</p>
+          <div className="flex items-center gap-3">
+            <Shield className="h-8 w-8 text-primary" />
+            <div>
+                <h1 className="text-3xl font-bold text-primary">Admin Panel</h1>
+                <p className="text-muted-foreground">View all cases across the system.</p>
+            </div>
           </div>
-          {user?.role === 'police' && (
-            <Button onClick={handleNewCase} disabled={isCreatingCase}>
-              <PlusCircle className="mr-2 h-5 w-5" />
-              {isCreatingCase ? "Creating Case..." : "Start New Case"}
-            </Button>
-          )}
         </div>
         
         <Tabs defaultValue="active" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="active">Ongoing ({activeCases.length})</TabsTrigger>
-            <TabsTrigger value="closed">Closed ({closedCases.length})</TabsTrigger>
+            <TabsTrigger value="active">All Ongoing ({activeCases.length})</TabsTrigger>
+            <TabsTrigger value="closed">All Closed ({closedCases.length})</TabsTrigger>
           </TabsList>
           <TabsContent value="active">
              <div className="space-y-4 mt-4">
-              {renderContent(activeCases, 'active')}
+              {renderContent(activeCases)}
             </div>
           </TabsContent>
           <TabsContent value="closed">
             <div className="space-y-4 mt-4">
-              {renderContent(closedCases, 'closed')}
+              {renderContent(closedCases)}
             </div>
           </TabsContent>
         </Tabs>
