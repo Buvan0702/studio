@@ -8,7 +8,6 @@ import JabtinamaPrint from "@/components/print/JabtinamaPrint";
 import RajinamaPrint from "@/components/print/RajinamaPrint";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { Header } from "@/components/Header";
 
 export default async function PrintPage({ params }: { params: { caseId: string; formType: string } }) {
   const { caseId, formType } = params;
@@ -18,8 +17,6 @@ export default async function PrintPage({ params }: { params: { caseId: string; 
 
   if (!formSnap.exists()) {
     return (
-        <>
-        <Header/>
         <div className="container mx-auto py-8">
             <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
@@ -27,7 +24,6 @@ export default async function PrintPage({ params }: { params: { caseId: string; 
                 <AlertDescription>Form data not found. Please complete the form before printing.</AlertDescription>
             </Alert>
         </div>
-        </>
     )
   }
 
@@ -49,11 +45,8 @@ export default async function PrintPage({ params }: { params: { caseId: string; 
   };
 
   return (
-    <>
-      <Header />
       <PrintWrapper formType={formType} caseId={caseId}>
         {renderPrintComponent()}
       </PrintWrapper>
-    </>
   );
 }
