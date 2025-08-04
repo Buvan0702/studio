@@ -33,6 +33,25 @@ const formSchema = z.object({
   custodianSignature: z.string().min(1, "Signature is required."),
 });
 
+const defaultFormValues = {
+  custodianName: '',
+  custodianCaste: '',
+  custodianResident: '',
+  custodianTehsil: '',
+  custodianDistrict: '',
+  officerName: '',
+  handoverDate: '',
+  handoverMonth: '',
+  handoverYear: '',
+  itemsList: '',
+  declarationDate: '',
+  declarationMonth: '',
+  declarationYear: '',
+  witness1: '',
+  witness2: '',
+  custodianSignature: '',
+};
+
 export default function SupurdinamaForm({ caseId }: { caseId: string }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -41,24 +60,7 @@ export default function SupurdinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      custodianName: '',
-      custodianCaste: '',
-      custodianResident: '',
-      custodianTehsil: '',
-      custodianDistrict: '',
-      officerName: '',
-      handoverDate: '',
-      handoverMonth: '',
-      handoverYear: '',
-      itemsList: '',
-      declarationDate: '',
-      declarationMonth: '',
-      declarationYear: '',
-      witness1: '',
-      witness2: '',
-      custodianSignature: '',
-    },
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
@@ -67,7 +69,8 @@ export default function SupurdinamaForm({ caseId }: { caseId: string }) {
         const formRef = doc(db, "cases", caseId, "forms", "Supurdinama");
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
-          form.reset(docSnap.data().formData);
+          const data = docSnap.data().formData;
+          form.reset({ ...defaultFormValues, ...data });
         }
       } catch (error) {
         toast({ variant: "destructive", title: "Error", description: "Failed to fetch form data." });

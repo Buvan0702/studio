@@ -35,6 +35,25 @@ const formSchema = z.object({
   forwardingOfficer: z.string(),
 });
 
+const defaultFormValues = {
+  bookNo: '',
+  pageNo: '',
+  reportNo: '',
+  date: '',
+  accusedInfo: '',
+  offenseType: '',
+  relevantSection: '',
+  placeOfOffense: '',
+  dateOfOffense: '',
+  seizedGoods: '',
+  witnesses: '',
+  sentToAssistant: '',
+  sentToOfficer: '',
+  place: '',
+  area: '',
+  forwardingOfficer: '',
+};
+
 export default function PorForm({ caseId }: { caseId: string }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -45,24 +64,7 @@ export default function PorForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      bookNo: '',
-      pageNo: '',
-      reportNo: '',
-      date: '',
-      accusedInfo: '',
-      offenseType: '',
-      relevantSection: '',
-      placeOfOffense: '',
-      dateOfOffense: '',
-      seizedGoods: '',
-      witnesses: '',
-      sentToAssistant: '',
-      sentToOfficer: '',
-      place: '',
-      area: '',
-      forwardingOfficer: '',
-    },
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function PorForm({ caseId }: { caseId: string }) {
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
           const data = docSnap.data().formData;
-          form.reset(data);
+          form.reset({ ...defaultFormValues, ...data });
         }
       } catch (error) {
         toast({ variant: "destructive", title: "Error", description: "Failed to fetch form data." });

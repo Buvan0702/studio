@@ -38,6 +38,30 @@ const formSchema = z.object({
   witness4: z.string(),
 });
 
+const defaultFormValues = {
+  dateTime: '',
+  placeOfOffense: '',
+  officerName: '',
+  accusedName: '',
+  confiscatedProperty: '',
+  accusedCaste: '',
+  witnessName: '',
+  custodianName: '',
+  speciesDescription: '',
+  species: '',
+  quantity: '',
+  length: '',
+  girth: '',
+  rate: '',
+  totalValue: '',
+  accusedSignature: '',
+  officerSignature: '',
+  witness1: '',
+  witness2: '',
+  witness3: '',
+  witness4: '',
+};
+
 export default function JabtinamaForm({ caseId }: { caseId: string }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -46,29 +70,7 @@ export default function JabtinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      dateTime: '',
-      placeOfOffense: '',
-      officerName: '',
-      accusedName: '',
-      confiscatedProperty: '',
-      accusedCaste: '',
-      witnessName: '',
-      custodianName: '',
-      speciesDescription: '',
-      species: '',
-      quantity: '',
-      length: '',
-      girth: '',
-      rate: '',
-      totalValue: '',
-      accusedSignature: '',
-      officerSignature: '',
-      witness1: '',
-      witness2: '',
-      witness3: '',
-      witness4: '',
-    },
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
@@ -77,7 +79,8 @@ export default function JabtinamaForm({ caseId }: { caseId: string }) {
         const formRef = doc(db, "cases", caseId, "forms", "Jabtinama");
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
-          form.reset(docSnap.data().formData);
+          const data = docSnap.data().formData;
+          form.reset({ ...defaultFormValues, ...data });
         }
       } catch (error) {
         toast({ variant: "destructive", title: "Error", description: "Failed to fetch form data." });

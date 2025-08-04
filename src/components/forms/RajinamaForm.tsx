@@ -43,6 +43,36 @@ const formSchema = z.object({
   verifyingOfficerSignature: z.string().min(1, "Verifying officer signature is required."),
 });
 
+const defaultFormValues = {
+  declarant1Name: '',
+  declarant1Caste: '',
+  declarant1Resident: '',
+  declarant2Name: '',
+  declarant2Caste: '',
+  declarant2Resident: '',
+  declarant3Name: '',
+  declarant3Caste: '',
+  declarant3Resident: '',
+  declarant4Name: '',
+  declarant4Caste: '',
+  declarant4Resident: '',
+  declarant5Name: '',
+  declarant5Caste: '',
+  declarant5Resident: '',
+  suspectInfo: '',
+  declarationDate: '',
+  declarationYear: '',
+  declarantSignature: '',
+  witness1: '',
+  witness2: '',
+  witness3: '',
+  witness4: '',
+  witness5: '',
+  verificationDate: '',
+  verificationYear: '',
+  verifyingOfficerSignature: '',
+};
+
 export default function RajinamaForm({ caseId }: { caseId: string }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -51,35 +81,7 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      declarant1Name: '',
-      declarant1Caste: '',
-      declarant1Resident: '',
-      declarant2Name: '',
-      declarant2Caste: '',
-      declarant2Resident: '',
-      declarant3Name: '',
-      declarant3Caste: '',
-      declarant3Resident: '',
-      declarant4Name: '',
-      declarant4Caste: '',
-      declarant4Resident: '',
-      declarant5Name: '',
-      declarant5Caste: '',
-      declarant5Resident: '',
-      suspectInfo: '',
-      declarationDate: '',
-      declarationYear: '',
-      declarantSignature: '',
-      witness1: '',
-      witness2: '',
-      witness3: '',
-      witness4: '',
-      witness5: '',
-      verificationDate: '',
-      verificationYear: '',
-      verifyingOfficerSignature: '',
-    },
+    defaultValues: defaultFormValues,
   });
 
   useEffect(() => {
@@ -88,7 +90,8 @@ export default function RajinamaForm({ caseId }: { caseId: string }) {
         const formRef = doc(db, "cases", caseId, "forms", "Rajinama");
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
-          form.reset(docSnap.data().formData);
+          const data = docSnap.data().formData;
+          form.reset({ ...defaultFormValues, ...data });
         }
       } catch (error) {
         toast({ variant: "destructive", title: "Error", description: "Failed to fetch form data." });
