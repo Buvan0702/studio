@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { auth } from '@/lib/firebase';
-import { AppUser } from './lib/types';
+import type { AppUser } from '@/lib/types';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from './lib/firebase';
+import { db } from '@/lib/firebase';
 
 async function getUserRole(uid: string): Promise<AppUser['role'] | null> {
     try {
