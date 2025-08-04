@@ -2,7 +2,13 @@
 
 import { PorFormData } from "@/lib/types";
 
-const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string, col3?: boolean }) => (
+const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string, col3?: boolean }) => {
+    const reportDate = data.date ? new Date(data.date) : null;
+    const dateStr = reportDate ? reportDate.toLocaleDateString() : '';
+    const monthStr = reportDate ? reportDate.toLocaleString('default', { month: 'long' }) : '';
+    const yearStr = reportDate ? reportDate.getFullYear().toString().substring(2) : '';
+
+    return (
     <div style={{
       position: 'absolute',
       top: 0,
@@ -18,7 +24,7 @@ const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string,
       <div style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '5px' }}>Preliminary Offense Report</div>
 
       <div style={{ margin: '6px 0' }}>Book No. <span className="underline">{data.bookNo}</span> Page No. <span className="underline">{data.pageNo}</span></div>
-      <div style={{ margin: '6px 0' }}>1. Report No. <span className="underline">{data.reportNo}</span> Date <span className="underline">{data.date ? new Date(data.date).toLocaleDateString() : ''}</span> Month <span className="underline">{data.month}</span> Year 20<span className="underline">{data.year}</span></div>
+      <div style={{ margin: '6px 0' }}>1. Report No. <span className="underline">{data.reportNo}</span> Date <span className="underline">{dateStr}</span> Month <span className="underline">{monthStr}</span> Year 20<span className="underline">{yearStr}</span></div>
       <div style={{ margin: '6px 0' }}>2. Name of accused, father's name, caste and address</div>
       <div className="field-line" style={{height: '36px'}}>{data.accusedInfo}</div>
       <div style={{ margin: '6px 0' }}>3. Type of offense and relevant section</div>
@@ -47,7 +53,8 @@ const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string,
         Note: This report must be sent to the senior officer within 48 hours of detection of the offense.
       </div>
     </div>
-);
+    )
+};
 
 
 export default function PorPrint({ data }: { data: PorFormData }) {

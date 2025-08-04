@@ -19,8 +19,6 @@ const formSchema = z.object({
   pageNo: z.string().min(1, "Page No. is required."),
   reportNo: z.string().min(1, "Report number is required."),
   date: z.string().min(1, "Date is required."),
-  month: z.string().min(1, "Month is required."),
-  year: z.string().min(1, "Year is required."),
   accusedInfo: z.string().min(1, "Accused info is required."),
   offenseType: z.string().min(1, "Type of offense is required."),
   placeOfOffense: z.string().min(1, "Place of offense is required."),
@@ -48,8 +46,6 @@ export default function PorForm({ caseId }: { caseId: string }) {
       pageNo: '',
       reportNo: '',
       date: '',
-      month: '',
-      year: '',
       accusedInfo: '',
       offenseType: '',
       placeOfOffense: '',
@@ -123,18 +119,12 @@ export default function PorForm({ caseId }: { caseId: string }) {
             <FormItem><FormLabel>Page No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField control={form.control} name="reportNo" render={({ field }) => (
             <FormItem><FormLabel>Report No.</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
           )} />
           <FormField control={form.control} name="date" render={({ field }) => (
-            <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="month" render={({ field }) => (
-            <FormItem><FormLabel>Month</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-          )} />
-          <FormField control={form.control} name="year" render={({ field }) => (
-            <FormItem><FormLabel>Year (YYYY)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Report Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
           )} />
         </div>
         <FormField control={form.control} name="accusedInfo" render={({ field }) => (

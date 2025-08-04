@@ -27,13 +27,10 @@ export type Form<T> = {
 
 // Define specific form data types
 export type PorFormData = {
-  officerId: string;
   bookNo: string;
   pageNo: string;
   reportNo: string;
   date: string;
-  month: string;
-  year: string;
   accusedInfo: string;
   offenseType: string;
   placeOfOffense: string;
