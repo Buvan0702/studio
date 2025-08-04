@@ -4,22 +4,15 @@
  * @fileOverview Suggests a relevant law section based on an offense description.
  *
  * - suggestLawSection - A function that suggests a law section.
- * - SuggestLawSectionInput - The input type for the suggestLawSection function.
- * - SuggestLawSectionOutput - The return type for the suggestLawSection function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-export const SuggestLawSectionInputSchema = z.object({
-  offenseDescription: z.string().describe('The description of the offense.'),
-});
-export type SuggestLawSectionInput = z.infer<typeof SuggestLawSectionInputSchema>;
-
-export const SuggestLawSectionOutputSchema = z.object({
-  section: z.string().describe('The suggested relevant law section.'),
-});
-export type SuggestLawSectionOutput = z.infer<typeof SuggestLawSectionOutputSchema>;
+import {
+  SuggestLawSectionInput,
+  SuggestLawSectionInputSchema,
+  SuggestLawSectionOutput,
+  SuggestLawSectionOutputSchema,
+} from '@/lib/types';
 
 export async function suggestLawSection(input: SuggestLawSectionInput): Promise<SuggestLawSectionOutput> {
   return suggestLawSectionFlow(input);

@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
+import { z } from 'zod';
 
 export type Case = {
   id: string;
@@ -117,3 +118,15 @@ export type RajinamaFormData = {
   verificationYear: string;
   verifyingOfficerSignature: string;
 };
+
+// AI Schema Types
+
+export const SuggestLawSectionInputSchema = z.object({
+  offenseDescription: z.string().describe('The description of the offense.'),
+});
+export type SuggestLawSectionInput = z.infer<typeof SuggestLawSectionInputSchema>;
+
+export const SuggestLawSectionOutputSchema = z.object({
+  section: z.string().describe('The suggested relevant law section.'),
+});
+export type SuggestLawSectionOutput = z.infer<typeof SuggestLawSectionOutputSchema>;
