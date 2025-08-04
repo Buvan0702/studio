@@ -49,8 +49,11 @@ export default async function PrintPage({ params }: { params: { caseId: string; 
   };
 
   return (
-    <PrintWrapper formType={formType} caseId={caseId}>
-      {renderPrintComponent()}
-    </PrintWrapper>
+    <>
+      <Header />
+      <PrintWrapper formType={formType} caseId={caseId}>
+        {renderPrintComponent()}
+      </PrintWrapper>
+    </>
   );
 }
