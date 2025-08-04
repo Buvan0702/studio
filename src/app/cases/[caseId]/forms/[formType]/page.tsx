@@ -6,7 +6,6 @@ import SupurdinamaForm from "@/components/forms/SupurdinamaForm";
 import JabtinamaForm from "@/components/forms/JabtinamaForm";
 import RajinamaForm from "@/components/forms/RajinamaForm";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import CasesLayout from "../../../layout";
 
 export default function FormPage() {
   const params = useParams();
@@ -29,7 +28,6 @@ export default function FormPage() {
   };
 
   return (
-    <CasesLayout>
       <div className="container mx-auto max-w-4xl py-8 px-4">
         <Card>
           <CardHeader>
@@ -43,6 +41,5 @@ export default function FormPage() {
           </CardContent>
         </Card>
       </div>
-    </CasesLayout>
   );
 }
