@@ -12,7 +12,9 @@ import { useState, useEffect } from "react";
 import { doc, getDoc, setDoc, serverTimestamp, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
+import { suggestLawSection } from "@/ai/flows/suggest-law-section";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   bookNo: z.string().min(1, "Book No. is required."),
@@ -21,6 +23,7 @@ const formSchema = z.object({
   date: z.string().min(1, "Date is required."),
   accusedInfo: z.string().min(1, "Accused info is required."),
   offenseType: z.string().min(1, "Type of offense is required."),
+  relevantSection: z.string().min(1, "Relevant section is required."),
   placeOfOffense: z.string().min(1, "Place of offense is required."),
   dateOfOffense: z.string().min(1, "Date of offense is required."),
   seizedGoods: z.string().min(1, "Seized goods are required."),
@@ -37,6 +40,8 @@ export default function PorForm({ caseId }: { caseId: string }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [suggestion, setSuggestion] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +52,7 @@ export default function PorForm({ caseId }: { caseId: string }) {
       date: '',
       accusedInfo: '',
       offenseType: '',
+      relevantSection: '',
       placeOfOffense: '',
       dateOfOffense: '',
       seizedGoods: '',
@@ -66,10 +72,6 @@ export default function PorForm({ caseId }: { caseId: string }) {
         const docSnap = await getDoc(formRef);
         if (docSnap.exists()) {
           const data = docSnap.data().formData;
-          // For backward compatibility, if signatureDate exists, use it for date.
-          if (data.signatureDate && !data.date) {
-            data.date = data.signatureDate;
-          }
           form.reset(data);
         }
       } catch (error) {
@@ -80,6 +82,29 @@ export default function PorForm({ caseId }: { caseId: string }) {
     };
     fetchFormData();
   }, [caseId, form, toast]);
+
+  const handleGetSuggestion = async () => {
+    const offenseDescription = form.getValues("offenseType");
+    if (!offenseDescription) {
+      toast({
+        variant: "destructive",
+        title: "No description provided",
+        description: "Please enter a description of the offense first.",
+      });
+      return;
+    }
+    setIsSuggesting(true);
+    setSuggestion(null);
+    try {
+      const result = await suggestLawSection({ offenseDescription });
+      setSuggestion(result.section);
+    } catch (error) {
+      console.error("AI suggestion error:", error);
+      toast({ variant: "destructive", title: "Suggestion Failed", description: "Could not get AI suggestion." });
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -133,9 +158,33 @@ export default function PorForm({ caseId }: { caseId: string }) {
         <FormField control={form.control} name="accusedInfo" render={({ field }) => (
             <FormItem><FormLabel>Name of accused, father's name, caste and address</FormLabel><FormControl><Textarea rows={3} {...field} /></FormControl><FormMessage /></FormItem>
         )} />
+        
         <FormField control={form.control} name="offenseType" render={({ field }) => (
-            <FormItem><FormLabel>Type of offense and relevant section</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Type of offense</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
         )} />
+        <div className="space-y-2">
+            <Button type="button" variant="outline" size="sm" onClick={handleGetSuggestion} disabled={isSuggesting}>
+                {isSuggesting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                Get AI Suggestion
+            </Button>
+            {suggestion && (
+                <Alert>
+                    <AlertTitle className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" /> AI Suggestion
+                    </AlertTitle>
+                    <AlertDescription className="flex justify-between items-center">
+                        <p>{suggestion}</p>
+                        <Button type="button" size="sm" onClick={() => form.setValue("relevantSection", suggestion)}>
+                            Use Suggestion
+                        </Button>
+                    </AlertDescription>
+                </Alert>
+            )}
+        </div>
+        <FormField control={form.control} name="relevantSection" render={({ field }) => (
+            <FormItem><FormLabel>Relevant section</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+        )} />
+
         <FormField control={form.control} name="placeOfOffense" render={({ field }) => (
             <FormItem><FormLabel>Place of offense</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
         )} />

@@ -31,7 +31,7 @@ const Column = ({ data, part, col3 = false }: { data: PorFormData, part: string,
       <div style={{ margin: '6px 0' }}>2. Name of accused, father's name, caste and address</div>
       <div className="field-line" style={{height: '36px'}}>{data.accusedInfo}</div>
       <div style={{ margin: '6px 0' }}>3. Type of offense and relevant section</div>
-      <div className="field-line">{data.offenseType}</div>
+      <div className="field-line">{data.offenseType} - {data.relevantSection}</div>
       <div style={{ margin: '6px 0' }}>4. Place of offense</div>
       <div className="field-line">{data.placeOfOffense}</div>
       <div style={{ margin: '6px 0' }}>5. Date of offense</div>

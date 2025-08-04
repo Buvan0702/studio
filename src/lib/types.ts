@@ -33,6 +33,7 @@ export type PorFormData = {
   date: string;
   accusedInfo: string;
   offenseType: string;
+  relevantSection: string;
   placeOfOffense: string;
   dateOfOffense: string;
   seizedGoods: string;
